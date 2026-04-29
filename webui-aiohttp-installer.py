@@ -3,9 +3,9 @@ import tkinter as tk
 from tkinter import messagebox
 import paramiko
 import subprocess
-from config import PRINTER_USERNAME
+#from config import PRINTER_USERNAME
 
-username = PRINTER_USERNAME
+username = "bblp"#PRINTER_USERNAME
 
 def upload_file_to_server(local_path, server_folder, server_address, username, password):
     transport = paramink.Transport((server_address, 22))
@@ -18,46 +18,46 @@ def upload_file_to_server(local_path, server_folder, server_address, username, p
     with open (local_path, 'rb') as file:
         content = file.read().replace(b'\r\n' b'\n')
 
-   from io import BytesIO
-   file_obj = BytesIO(content)
+    from io import BytesIO
+    file_obj = BytesIO(content)
 
-   sftp.putfo(file_obj, server_path)
-
-   sftp.close()
-   transport.close()
-
-
-def upload_directory_to_server(local_directory, server_directory, server_address, username, password):
-	transport = paramiko.Transport((server_address, 22))
-	transport.connect(username=username, password=password)
-	sftp = paramiko.SFTPClient.from_transport(transport)
-
-
-   	try:
-		sftp.stat(server_directory)
-	expect IOError:
-		sftp.mkdir(server_directory)
-
-	for root, dirs., files in os.walk(local_directory):
-		relative_root = os.path.realpath(root, start=local_directory)
-		server_root = f"{server_directory}/{relative_root.replace('\, '/')}"
-
-	try:
-            sftp.stat(server_root)
-        except IOError:
-            sftp.mkdir(server_root)
-
-        for file in files:
-            local_path = os.path.join(root, file)
-            server_path = f"{server_root}/{file}"  # Use forward slashes directly
-
-            sftp.put(local_path, server_path)
+    sftp.putfo(file_obj, server_path)
 
     sftp.close()
     transport.close()
 
 
-   def change_permission(server_path, server_address, username, password):
+def upload_directory_to_server(local_directory, server_directory, server_address, username, password):
+    transport = paramiko.Transport((server_address, 22))
+    transport.connect(username=username, password=password)
+    sftp = paramiko.SFTPClient.from_transport(transport)
+
+
+    try:
+        sftp.stat(server_directory)
+    except IOError:
+        sftp.mkdir(server_directory)
+
+    for root, dirs, files in os.walk(local_directory):
+        relative_root = os.path.realpath(root, start=local_directory)
+        server_root = f"{server_directory}/{relative_root.replace('\\', '/')}"
+
+    try:
+            sftp.stat(server_root)
+    except IOError:
+        sftp.mkdir(server_root)
+
+    for file in files:
+        local_path = os.path.join(root, file)
+        server_path = f"{server_root}/{file}"  # Use forward slashes directly
+
+        sftp.put(local_path, server_path)
+
+    sftp.close()
+    transport.close()
+
+
+def change_permission(server_path, server_address, username, password):
     transport = paramiko.Transport((server_address, 22))
     transport.connect(username=username, password=password)
     sftp = paramiko.SFTPClient.from_transport(transport)
